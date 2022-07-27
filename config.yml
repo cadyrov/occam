@@ -1,0 +1,5 @@
+project:
+  log:
+    level: debug
+  name: occamfi
+  shift: 10
