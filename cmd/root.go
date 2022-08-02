@@ -63,6 +63,15 @@ func initLogger() zerolog.Logger {
 		level = zerolog.InfoLevel
 	}
 
+	if cnf.Project.Log.Output != "" {
+		fl, err := os.Create(cnf.Project.Log.Output)
+		if err != nil {
+			return zerolog.New(os.Stdout).With().Timestamp().Logger().Level(level)
+		}
+
+		return zerolog.New(fl).With().Timestamp().Logger().Level(level)
+	}
+
 	return zerolog.New(os.Stdout).With().Timestamp().Logger().Level(level)
 }
 

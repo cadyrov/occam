@@ -1,8 +1,12 @@
 package origin
 
 import (
+	"context"
+	"fmt"
 	"github.com/cadyrov/occam/domain"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"math/rand"
 	"time"
 )
 
@@ -20,8 +24,28 @@ func New(log zerolog.Logger) *MockOrigin {
 	}
 }
 
-func (mo *MockOrigin) start() {
+var (
+	precision    = 60
+	ErrCloseChan = errors.New("some err")
+)
 
+func (mo *MockOrigin) Start(ctx context.Context) {
+	go func() {
+		tk := time.NewTicker(time.Second)
+		for range tk.C {
+			select {
+			case <-ctx.Done():
+				close(mo.price)
+				close(mo.err)
+			default:
+				mo.price <- domain.TickerPrice{
+					Ticker: domain.BTCUSDTicker,
+					Time:   time.Now(),
+					Price:  fmt.Sprintf("%f", rand.Float32()),
+				}
+			}
+		}
+	}()
 }
 
 func (mo *MockOrigin) SubscribePriceStream(domain.Ticker) (chan domain.TickerPrice, chan error) {

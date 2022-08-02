@@ -15,8 +15,9 @@ type TickerPrice struct {
 }
 
 type Subscriber struct {
-	TTP chan TickerPrice
-	err chan error
+	TTP    chan TickerPrice
+	Err    chan error
+	Closed bool
 }
 
 type SubscriberList []Subscriber

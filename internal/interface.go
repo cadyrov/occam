@@ -10,6 +10,6 @@ type PriceStreamSubscriber interface {
 }
 
 type Keeper interface {
-	Put(context.Context, domain.Ticker, float64) error
-	Get(domain.Ticker) float64
+	Put(context.Context, domain.TickerPrice) error
+	Get(ticker domain.Ticker) (int64, float64)
 }
