@@ -81,3 +81,21 @@ func (s *Service) Get(ti domain.Ticker) (int64, float64) {
 
 	return tmMarker, tm[tmMarker]
 }
+
+func (s *Service) ClearOldest(ti domain.Ticker, timeMarker int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	tm, ok := s.storage[ti]
+	if !ok {
+		return
+	}
+
+	for i := range tm {
+		if i < timeMarker {
+			delete(tm, i)
+
+			s.log.Debug().Int64("tmn", i).Msg("storage delete marker")
+		}
+	}
+}

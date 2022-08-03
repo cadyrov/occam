@@ -1,9 +1,9 @@
 project:
   log:
-    level: debug
+    level: info
     output: ./logs
   name: occamfi
   shift: 10
   output:
-  precisionSecond: 10
+  precision_second: 60
 

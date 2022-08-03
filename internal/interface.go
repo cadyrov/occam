@@ -12,4 +12,5 @@ type PriceStreamSubscriber interface {
 type Keeper interface {
 	Put(context.Context, domain.TickerPrice) error
 	Get(ticker domain.Ticker) (int64, float64)
+	ClearOldest(ti domain.Ticker, timeMarker int64)
 }

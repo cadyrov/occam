@@ -9,7 +9,7 @@ type Project struct {
 	Log             Log    `mapstructure:"log"`
 	Shift           int    `mapstructure:"shift"`
 	Output          string `mapstructure:"output"`
-	PrecisionSecond int64  `mapstructure:"output"`
+	PrecisionSecond int64  `mapstructure:"precision_second"`
 }
 
 type Log struct {

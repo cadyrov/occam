@@ -60,23 +60,23 @@ func (s *Service) Run(ctx context.Context, output io.Writer) {
 }
 
 func (s *Service) startSubscribers(ctx context.Context) {
-	tm := time.NewTicker(time.Second)
-
-	for range tm.C {
-		for i := range s.subscribers {
-			sbs := s.subscribers[i]
-			go func() {
+	for i := range s.subscribers {
+		sbs := s.subscribers[i]
+		go func() {
+			for {
 				select {
 				case <-ctx.Done():
-
 					return
+
 				case tk := <-sbs.TTP:
 					if tk.Price != "" {
 						s.storage.Put(ctx, tk)
 					}
+				case <-sbs.Err:
+					return
 				}
-			}()
-		}
+			}
+		}()
 	}
 }
 
@@ -100,6 +100,8 @@ func (s *Service) RunResult(ctx context.Context, w io.Writer) {
 			if _, err := w.Write([]byte(str)); err != nil {
 				s.log.Err(err).Msg("try to write")
 			}
+
+			s.storage.ClearOldest(domain.BTCUSDTicker, timeMarker)
 		}
 	}
 }
