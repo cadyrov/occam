@@ -67,7 +67,7 @@ func run() {
 	origins := make([]internal.PriceStreamSubscriber, 0, 100)
 
 	for i := 0; i < 100; i++ {
-		mo := origin.New(log)
+		mo := origin.New(&log)
 		mo.Start(ctx)
 
 		origins = append(origins, mo)

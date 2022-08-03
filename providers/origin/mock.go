@@ -11,14 +11,16 @@ import (
 )
 
 type MockOrigin struct {
+	log    *zerolog.Logger
 	price  chan domain.TickerPrice
 	err    chan error
 	ticker *time.Ticker
 	closed bool
 }
 
-func New(log zerolog.Logger) *MockOrigin {
+func New(log *zerolog.Logger) *MockOrigin {
 	return &MockOrigin{
+		log:    log,
 		price:  make(chan domain.TickerPrice),
 		err:    make(chan error),
 		ticker: time.NewTicker(time.Second),
@@ -42,15 +44,18 @@ func (mo *MockOrigin) Start(ctx context.Context) {
 
 				close(mo.err)
 			default:
-				if !mo.closed {
+				if mo.closed {
 					continue
 				}
 
 				if rand.Intn(precisionToClosed) == 1 {
 					close(mo.price)
+
 					mo.closed = true
 
 					mo.err <- ErrCloseChan
+
+					mo.log.Info().Str("value", fmt.Sprint(mo.price)).Msg("channel closed")
 
 					continue
 				}
