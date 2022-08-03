@@ -14,6 +14,7 @@ type MockOrigin struct {
 	price  chan domain.TickerPrice
 	err    chan error
 	ticker *time.Ticker
+	closed bool
 }
 
 func New(log zerolog.Logger) *MockOrigin {
@@ -25,8 +26,8 @@ func New(log zerolog.Logger) *MockOrigin {
 }
 
 var (
-	precision    = 60
-	ErrCloseChan = errors.New("some err")
+	precisionToClosed = 10
+	ErrCloseChan      = errors.New("some err")
 )
 
 func (mo *MockOrigin) Start(ctx context.Context) {
@@ -35,9 +36,25 @@ func (mo *MockOrigin) Start(ctx context.Context) {
 		for range tk.C {
 			select {
 			case <-ctx.Done():
-				close(mo.price)
+				if !mo.closed {
+					close(mo.price)
+				}
+
 				close(mo.err)
 			default:
+				if !mo.closed {
+					continue
+				}
+
+				if rand.Intn(precisionToClosed) == 1 {
+					close(mo.price)
+					mo.closed = true
+
+					mo.err <- ErrCloseChan
+
+					continue
+				}
+
 				mo.price <- domain.TickerPrice{
 					Ticker: domain.BTCUSDTicker,
 					Time:   time.Now(),
